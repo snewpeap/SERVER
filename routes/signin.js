@@ -6,14 +6,28 @@ const UserModel = require('../models/users');
 const checkNotLogin = require('../middlewares/check').checkNotLogin;
 
 // GET /signin 登录页
-router.get('/', checkNotLogin, function (req, res, next) {
-    console.log('Someone is login');
+router.get('/', checkNotLogin, function (err, req, res, next) {
+    if (req.cookies.user) {
+        if (err.message.match('已处于登陆状态')) {
+            console.log('logged user logging');
+        }
+        if (req.session.id === req.cookies.user.id) {
+            res.status(200).send({message: "登陆成功"});
+            return;
+        }else {
+            res.status(666).send({message: "登录失败"});
+            return;
+        }
+    } else{
+        res.status(666).send({message:"登陆过期，请重新登陆"});
+        return;
+    }
 });
 
 // POST /signin 用户登录
 router.post('/', checkNotLogin, function (req, res, next) {
-    const name = req.fields.name? req.fields.name : req.session.name;
-    const password = req.fields.password? sha1(req.fields.password) : req.session.password;
+    const name = req.fields.name;
+    const password = sha1(req.fields.password);
     console.log(`raw:     ${name}     ${password}`);
     // 校验参数
     try {
@@ -38,8 +52,10 @@ router.post('/', checkNotLogin, function (req, res, next) {
                 throw new Error('密码错误');
             }
             // 用户信息写入 session
+            delete user.password;
             req.session.user = user;
-            res.status(200).send({message:"登陆成功",nickname:user.nickname});
+            res.cookie('user',{id:req.session.id},{maxAge:604800000});
+            res.status(200).send({message:"登陆成功"});
         })
         .catch(next);
 });

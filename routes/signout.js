@@ -8,6 +8,7 @@ router.get('/', checkLogin, function (req, res, next) {
     // 清空 session 中用户信息
     try {
         req.session.user = null;
+        res.clearCookie('user');
         res.status(200).end();
     }catch (e) {
         return next(e);

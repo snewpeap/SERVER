@@ -2,6 +2,7 @@ const path = require('path');
 const express = require('express');
 const session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
+const cookieParser = require('cookie-parser');
 //const flash = require('connect-flash');
 const config = require('config-lite')(__dirname);
 const routes = require('./routes');
@@ -18,6 +19,8 @@ const app = express();
 
 // 设置静态文件目录
 app.use(express.static(path.join(__dirname, 'public')));
+// cookie-parser
+app.use(cookieParser());
 // session 中间件
 app.use(session({
     name: config.session.key, // 设置 cookie 中保存 session id 的字段名称

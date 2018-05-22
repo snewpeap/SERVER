@@ -22,6 +22,7 @@ router.post('/create', checkLogin, function (req, res, next) {
     const author = req.session.user._id;
     const content = req.fields.content;
     const type = req.fields.type;
+    let date = new Date();
 
     // 校验参数
     try {
@@ -39,6 +40,7 @@ router.post('/create', checkLogin, function (req, res, next) {
         author: author,
         content: content,
         type: type,
+        date: date,
     };
 
     PostModel.create(post)

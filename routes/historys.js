@@ -19,11 +19,13 @@ router.post('/create', checkLogin, function (req, res, next){
     const author = req.session.user._id;
     const title = req.fields.title;
     const length = req.fields.length;
+    let date = new Date();
 
     let history = {
         author: author,
         title: title,
         length:length,
+        date: date,
     };
 
     HistoryModel.create(history)

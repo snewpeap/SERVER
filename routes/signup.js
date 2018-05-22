@@ -19,26 +19,6 @@ router.post('/', function (req, res, next) {
     //const avatar = req.files.avatar.path.split(path.sep).pop();
     let password = req.fields.password;
 
-    // 校验参数
-    try {
-        if (!(username.length >= 5 && username.length <= 10)) {
-            throw new Error('用户名限制在 5-10 个英文字母');
-        }
-        if (!(/^[A-z]{5,20}$/.test(username))) {
-            throw new Error('用户名不符合格式');
-        }
-        if (password.length < 6) {
-            throw new Error('密码至少 6 个字符');
-        }
-        if (nickname.length === 0 || nickname.replace(/(^\s*)|(\s*$)/g, "") === '') {
-            throw new Error('昵称不能为空');
-        }
-    } catch (e) {
-        // 注册失败，异步删除上传的头像
-        //fs.unlink(req.files.avatar.path);
-        return next(e);
-    }
-
     // 明文密码加密
     password = sha1(password);
     console.log(`sha1:${sha1(password)}`);

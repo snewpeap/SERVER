@@ -48,15 +48,17 @@ module.exports = {
     },
 
 // 通过文章 id 删除一篇文章
-    delPostById: function delPostById (postId, author) {
-        return Post.deleteOne({ author: author, _id: postId })
+    delPostById: function delPostById (postId) {
+        return Post.deleteOne({ _id: postId })
             .exec()
+            /*
             .then(function (res) {
                 // 文章删除后，再删除该文章下的所有留言
                 if (res.result.ok && res.result.n > 0) {
                     return CommentModel.delCommentsByPostId(postId)
                 }
             })
+            */
     },
 
     // 按创建时间降序获取所有用户文章或者某个特定类型的所有文章

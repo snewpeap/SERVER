@@ -4,12 +4,13 @@ const PostModel = require('../models/posts');
 const CommentModel = require('../models/comments');
 const checkLogin = require('../middlewares/check').checkLogin;
 
-// GET /posts 所有用户或者特定用户的文章页
-//   eg: GET /posts?author=xxx
+// GET /posts 所有用户的文章页
+// GET /posts?type=normal&author=balabala
 router.get('/', function (req, res, next) {
+    const type = req.query.type;
     const author = req.query.author;
 
-    PostModel.getPosts(author)
+    PostModel.getPosts(type,author)
         .then(function (posts) {
             res.status(200).json({posts:posts});
         })
@@ -20,11 +21,15 @@ router.get('/', function (req, res, next) {
 router.post('/create', checkLogin, function (req, res, next) {
     const author = req.session.user._id;
     const content = req.fields.content;
+    const type = req.fields.type;
 
     // 校验参数
     try {
         if (!content.length) {
-            throw new Error('请填写内容')
+            throw new Error('请填写内容');
+        }
+        if (['normal', 'jingyan'].indexOf(type) === -1){
+            throw new Error('非法的类型');
         }
     } catch (e) {
         return next(e);
@@ -32,7 +37,8 @@ router.post('/create', checkLogin, function (req, res, next) {
 
     let post = {
         author: author,
-        content: content
+        content: content,
+        type: type,
     };
 
     PostModel.create(post)
@@ -94,7 +100,6 @@ router.get('/:postId/edit', checkLogin, function (req, res, next) {
 router.post('/:postId/edit', checkLogin, function (req, res, next) {
     const postId = req.params.postId;
     const author = req.session.user._id;
-    const title = req.fields.title;
     const content = req.fields.content;
 
     // 校验参数
@@ -114,7 +119,7 @@ router.post('/:postId/edit', checkLogin, function (req, res, next) {
             if (post.author._id.toString() !== author.toString()) {
                 throw new Error('没有权限')
             }
-            PostModel.updatePostById(postId, { title: title, content: content })
+            PostModel.updatePostById(postId, { content: content })
                 .then(function () {
                     res.status(200).send({message:'修改成功'});
                 })

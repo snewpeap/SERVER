@@ -59,18 +59,21 @@ module.exports = {
             })
     },
 
-    // 按创建时间降序获取所有用户文章或者某个特定用户的所有文章
-    getPosts: function getPosts (author) {
+    // 按创建时间降序获取所有用户文章或者某个特定类型的所有文章
+    getPosts: function getPosts (author,type) {
         const query = {};
-        if (author) {
+        if (author){
             query.author = author;
+        }
+        if (type) {
+            query.type = type;
         }
         return Post
             .find(query)
             .populate({ path: 'author', model: 'User' })
             .sort({ _id: -1 })
             .addCreatedAt()
-            .addCommentsCount()
+            //.addCommentsCount()
             .exec()
     },
 };

@@ -12,7 +12,7 @@ router.get('/', checkNotLogin, function (err, req, res, next) {
             console.log('logged user logging');
         }
         if (req.session.id === req.cookies.user.id) {
-            res.status(200).send({message: "登陆成功"});
+            res.status(200).send({message: "登陆成功",userData:{id:req.session.user._id,nickname:req.session.user.nickname}});
             return;
         }else {
             res.status(666).send({message: "登录失败"});
@@ -55,7 +55,7 @@ router.post('/', checkNotLogin, function (req, res, next) {
             delete user.password;
             req.session.user = user;
             res.cookie('user',{id:req.session.id},{maxAge:604800000});
-            res.status(200).send({message:"登陆成功"});
+            res.status(200).send({message:"登陆成功",userData:{id:req.session.user._id,nickname:req.session.user.nickname}});
         })
         .catch(next);
 });

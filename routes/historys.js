@@ -1,9 +1,8 @@
-import moment from "moment";
-
 const express = require('express');
 const router = express.Router();
 const HistoryModel = require('../models/historys');
 const checkLogin = require('../middlewares/check').checkLogin;
+const moment = require('moment');
 
 // GET /historys/get 当前用户的所有历史
 router.get('/get', checkLogin, function (req, res, next) {

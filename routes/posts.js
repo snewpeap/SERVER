@@ -1,10 +1,9 @@
-import moment from "moment";
-
 const express = require('express');
 const router = express.Router();
 const PostModel = require('../models/posts');
 const CommentModel = require('../models/comments');
 const checkLogin = require('../middlewares/check').checkLogin;
+const moment = require('moment');
 
 // GET /posts 所有用户的文章页
 // GET /posts?type=normal&author=balabala

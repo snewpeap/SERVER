@@ -1,3 +1,5 @@
+import moment from "moment";
+
 const express = require('express');
 const router = express.Router();
 const HistoryModel = require('../models/historys');
@@ -19,7 +21,7 @@ router.post('/create', checkLogin, function (req, res, next){
     const author = req.session.user._id;
     const title = req.fields.title;
     const length = req.fields.length;
-    let date = new Date();
+    let date = moment().toDate();
 
     let history = {
         author: author,

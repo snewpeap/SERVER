@@ -1,3 +1,5 @@
+import moment from "moment";
+
 const express = require('express');
 const router = express.Router();
 const PostModel = require('../models/posts');
@@ -22,7 +24,7 @@ router.post('/create', checkLogin, function (req, res, next) {
     const author = req.session.user._id;
     const content = req.fields.content;
     const type = req.fields.type;
-    let date = new Date();
+    let date = moment().toDate();
 
     // 校验参数
     try {

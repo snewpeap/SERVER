@@ -62,7 +62,7 @@ module.exports = {
     },
 
     // 按创建时间降序获取所有用户文章或者某个特定类型的所有文章
-    getPosts: function getPosts (author,type) {
+    getPosts: function getPosts (type,author) {
         const query = {};
         if (author){
             query.author = author;

@@ -3,7 +3,6 @@ const path = require('path');
 const sha1 = require('sha1');
 const express = require('express');
 const router = express.Router();
-
 const UserModel = require('../models/users');
 //const checkNotLogin = require('../middlewares/check').checkNotLogin;
 
@@ -34,7 +33,6 @@ router.post('/', function (req, res, next) {
     UserModel.create(user)
         .then(function (result) {
             // 此 user 是插入 mongodb 后的值，包含 _id
-            console.log('inserting');
             user = result.ops[0];
             // 删除密码这种敏感信息，将用户信息存入 session
             console.log('success');

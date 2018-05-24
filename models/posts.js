@@ -1,20 +1,53 @@
 const Post = require('../lib/mongo').Post;
-const CommentModel = require('./comments');
+const FavoriteModel = require('../models/favorite');
 
-// 给 post 添加留言数 commentsCount
-Post.plugin('addCommentsCount', {
+// 给 post 添加数 FavoriteCount
+Post.plugin('addFavoriteCount', {
     afterFind: function (posts) {
+        console.log(posts);
         return Promise.all(posts.map(function (post) {
-            return CommentModel.getCommentsCount(post._id).then(function (commentsCount) {
-                post.commentsCount = commentsCount;
+            return FavoriteModel.getFavoriteCount(post._id.toString()).then(function (favoriteCount) {
+                post.favoriteCount = favoriteCount;
                 return post;
             })
         }))
     },
     afterFindOne: function (post) {
+        console.log(post);
         if (post) {
-            return CommentModel.getCommentsCount(post._id).then(function (count) {
-                post.commentsCount = count;
+            return FavoriteModel.getFavoriteCount(post._id.toString()).then(function (count) {
+                post.favoriteCount = count;
+                return post;
+            })
+        }
+        return post;
+    }
+});
+Post.plugin('addIsFavorite',{
+    afterFind: function (posts, opt) {
+        console.log(posts);
+        return Promise.all(posts.map(function (post) {
+            return FavoriteModel.getFavoriteByPostIdAndAuthor(post._id.toString(), opt.author)
+                .then(function (favor) {
+                    if (favor){
+                        post.isFavorite = true;
+                    } else {
+                        post.isFavorite = false;
+                    }
+                    return post;
+            })
+        }))
+    },
+    afterFindOne: function (post, opt) {
+        if (post) {
+            console.log(post);
+            return FavoriteModel.getFavoriteByPostIdAndAuthor(post._id.toString(),opt.author)
+                .then(function (favor) {
+                    if (favor){
+                        post.isFavorite = true;
+                    } else {
+                        post.isFavorite = false;
+                    }
                 return post;
             })
         }
@@ -27,12 +60,13 @@ module.exports = {
         return Post.create(post).exec();
     },
     // 通过文章 id 获取一篇文章
-    getPostById: function getPostById (postId) {
+    getPostById: function getPostById (postId,requester) {
         return Post
             .findOne({ _id: postId })
             .populate({ path: 'author', model: 'User' })
+            .addIsFavorite({author:requester})
+            .addFavoriteCount()
             .addCreatedAt()
-            .addCommentsCount()
             .exec()
     },
     getRawPostById: function getRawPostById (postId) {
@@ -51,18 +85,17 @@ module.exports = {
     delPostById: function delPostById (postId) {
         return Post.deleteOne({ _id: postId })
             .exec()
-            /*
             .then(function (res) {
-                // 文章删除后，再删除该文章下的所有留言
+                // 文章删除后，再删除该文章下的所有收藏
                 if (res.result.ok && res.result.n > 0) {
-                    return CommentModel.delCommentsByPostId(postId)
+                    return FavoriteModel.delFavoriteByPostId(postId)
                 }
             })
-            */
+
     },
 
     // 按创建时间降序获取所有用户文章或者某个特定类型的所有文章
-    getPosts: function getPosts (type,author) {
+    getPosts: function getPosts (type,author,requester) {
         const query = {};
         if (author){
             query.author = author;
@@ -74,8 +107,9 @@ module.exports = {
             .find(query)
             .populate({ path: 'author', model: 'User' })
             .sort({ _id: -1 })
+            .addIsFavorite({author:requester})
+            .addFavoriteCount()
             .addCreatedAt()
-            //.addCommentsCount()
             .exec()
     },
 };

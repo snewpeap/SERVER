@@ -6,12 +6,25 @@ const checkLogin = require('../middlewares/check').checkLogin;
 const moment = require('moment');
 
 // GET /posts 所有用户的文章页
-// GET /posts?type=normal&author=balabala
+// GET /posts?type=normal&author=balabala&requestFavorite=true
 router.get('/', function (req, res, next) {
     const type = req.query.type;
     const author = req.query.author;
+    const requester = req.session.user._id;
+    const requestFavorite = req.query.requestFavorite;
 
-    PostModel.getPosts(type,author)
+    PostModel.getPosts(type,author,requester)
+        .then(function (posts) {
+            console.log(posts);
+            if (requestFavorite){
+                let newposts = [];
+                for (let i=0;i<Object.keys(posts).length;i++){
+                    if (posts[i].isFavorite){
+                        newposts.push(posts[i]);
+                    }
+                } return newposts;
+            }return posts;
+        })
         .then(function (posts) {
             res.status(200).json({posts:posts});
         })

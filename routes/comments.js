@@ -50,7 +50,7 @@ router.get('/:commentId/remove', checkLogin, function (req, res, next) {
                     res.status(200).send({message:'删除成功'});
                 })
                 .catch(next);
-        })
+        }).catch(next);
 });
 
 module.exports = router;

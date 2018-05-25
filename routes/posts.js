@@ -8,7 +8,7 @@ const crypto = require('crypto');
 
 // GET /posts 所有用户的文章页
 // GET /posts?type=normal&author=balabala&requestFavorite=true
-router.get('/', function (req, res, next) {
+router.get('/', checkLogin,function (req, res, next) {
     const type = req.query.type;
     const author = req.query.author;
     const requester = req.session.user._id;
@@ -32,7 +32,7 @@ router.get('/', function (req, res, next) {
 });
 
 //GET /posts/jingyan?count=
-router.get('/jingyan/', function (req, res, next) {
+router.get('/jingyan/', checkLogin,function (req, res, next) {
     const requester = req.session.user._id;
     const count = req.query.count;
 
@@ -44,7 +44,7 @@ router.get('/jingyan/', function (req, res, next) {
 });
 
 //GET /posts/byTag?tag=&type=&count=
-router.get('/byTag/', function (req,res,next) {
+router.get('/byTag/', checkLogin,function (req,res,next) {
     const requester = req.session.user._id;
     const tag = req.query.tag;
     const type = req.query.type;

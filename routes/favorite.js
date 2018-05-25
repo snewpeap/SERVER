@@ -5,7 +5,7 @@ const checkLogin = require('../middlewares/check').checkLogin;
 const FavoriteModel = require('../models/favorite');
 
 // POST /favorite/:postId/create 收藏
-router.post('/:postId/create', checkLogin, function (req, res, next) {
+router.post('/:postId/create', checkLogin,function (req, res, next) {
     const postId = req.params.postId;
     const author = req.session.user._id;
 
@@ -27,7 +27,7 @@ router.post('/:postId/create', checkLogin, function (req, res, next) {
 });
 
 //GET /favorite/:postId/remove
-router.get('/:postId/remove', checkLogin, function (req, res, next) {
+router.get('/:postId/remove', checkLogin,function (req, res, next) {
     const postId = req.params.postId;
     const author = req.session.user._id;
 
@@ -47,7 +47,7 @@ router.get('/:postId/remove', checkLogin, function (req, res, next) {
 });
 
 //GET /favorite/get
-router.get('/get',checkLogin, function (req, res, next) {
+router.get('/get', checkLogin,function (req, res, next) {
     const author = req.session.user._id;
 
     FavoriteModel.getFavorite()

@@ -125,8 +125,6 @@ module.exports = {
         const query = {};
         if (tag){
             query.tag = tag;
-        } else{
-            query.tag = '专注';
         }
         if (type){
             query.type = type;

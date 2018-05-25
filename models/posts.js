@@ -4,7 +4,6 @@ const FavoriteModel = require('../models/favorite');
 // 给 post 添加数 FavoriteCount
 Post.plugin('addFavoriteCount', {
     afterFind: function (posts) {
-        console.log(posts);
         return Promise.all(posts.map(function (post) {
             return FavoriteModel.getFavoriteCount(post._id.toString()).then(function (favoriteCount) {
                 post.favoriteCount = favoriteCount;
@@ -13,7 +12,6 @@ Post.plugin('addFavoriteCount', {
         }))
     },
     afterFindOne: function (post) {
-        console.log(post);
         if (post) {
             return FavoriteModel.getFavoriteCount(post._id.toString()).then(function (count) {
                 post.favoriteCount = count;
@@ -25,7 +23,6 @@ Post.plugin('addFavoriteCount', {
 });
 Post.plugin('addIsFavorite',{
     afterFind: function (posts, opt) {
-        console.log(posts);
         return Promise.all(posts.map(function (post) {
             return FavoriteModel.getFavoriteByPostIdAndAuthor(post._id.toString(), opt.author)
                 .then(function (favor) {
@@ -40,7 +37,6 @@ Post.plugin('addIsFavorite',{
     },
     afterFindOne: function (post, opt) {
         if (post) {
-            console.log(post);
             return FavoriteModel.getFavoriteByPostIdAndAuthor(post._id.toString(),opt.author)
                 .then(function (favor) {
                     if (favor){
@@ -112,4 +108,38 @@ module.exports = {
             .addCreatedAt()
             .exec()
     },
+
+    getPosts2: function getPosts2 (requester, count) {
+        return Post
+            .find({type:'jingyan'})
+            .populate({ path: 'author', model: 'User' })
+            .sort({ _id:-1})
+            .limit(parseInt(count))
+            .addIsFavorite({author:requester})
+            .addFavoriteCount()
+            .addCreatedAt()
+            .exec()
+    },
+
+    getPosts3: function getPosts3 (requester, tag, type, count) {
+        const query = {};
+        if (tag){
+            query.tag = tag;
+        } else{
+            query.tag = '专注';
+        }
+        if (type){
+            query.type = type;
+        }
+
+        return Post
+            .find(query)
+            .populate({ path: 'author', model: 'User' })
+            .sort({ _id: -1 })
+            .addIsFavorite({author:requester})
+            .limit(count?parseInt(count):0)
+            .addFavoriteCount()
+            .addCreatedAt()
+            .exec()
+    }
 };

@@ -4,6 +4,7 @@ const PostModel = require('../models/posts');
 const CommentModel = require('../models/comments');
 const checkLogin = require('../middlewares/check').checkLogin;
 const moment = require('moment');
+const crypto = require('crypto');
 
 // GET /posts 所有用户的文章页
 // GET /posts?type=normal&author=balabala&requestFavorite=true
@@ -15,7 +16,6 @@ router.get('/', function (req, res, next) {
 
     PostModel.getPosts(type,author,requester)
         .then(function (posts) {
-            console.log(posts);
             if (requestFavorite){
                 let newposts = [];
                 for (let i=0;i<Object.keys(posts).length;i++){
@@ -31,11 +31,38 @@ router.get('/', function (req, res, next) {
         .catch(next)
 });
 
+//GET /posts/jingyan?count=
+router.get('/jingyan/', function (req, res, next) {
+    const requester = req.session.user._id;
+    const count = req.query.count;
+
+    PostModel.getPosts2(requester,count)
+        .then(function (posts) {
+            res.status(200).send({posts:posts});
+        })
+        .catch(next);
+});
+
+//GET /posts/byTag?tag=&type=&count=
+router.get('/byTag/', function (req,res,next) {
+    const requester = req.session.user._id;
+    const tag = req.query.tag;
+    const type = req.query.type;
+    const count = req.query.count;
+
+    PostModel.getPosts3(requester,tag,type,count)
+        .then(function (posts) {
+            res.status(200).send({posts:posts});
+        })
+        .catch(next);
+});
+
 // POST /posts/create 发表一篇文章
 router.post('/create', checkLogin, function (req, res, next) {
     const author = req.session.user._id;
     const content = req.fields.content;
     const type = req.fields.type;
+    const tag = req.fields.tag;
     let date = moment().toDate();
 
     // 校验参数
@@ -50,18 +77,24 @@ router.post('/create', checkLogin, function (req, res, next) {
         return next(e);
     }
 
+    const hash = crypto.createHash('md5');
+    hash.update(tag);
+    const color = hash.digest('hex').substring(1,7);
+
     let post = {
         author: author,
         content: content,
         type: type,
+        tag: tag,
         date: date,
+        color: color,
     };
 
     PostModel.create(post)
         .then(function (result) {
             // 此 post 是插入 mongodb 后的值，包含 _id
             post = result.ops[0];
-            res.status(200).send({message:"发布成功"});
+            res.status(200).send({message:"分享成功"});
         })
         .catch(next);
 });
